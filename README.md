@@ -13,15 +13,17 @@ MAA 任务执行器
 - 在src目录下创建`.env`文件，设置PocketBase admin认证信息
 - 运行 `npm install pino-pretty -g` (如果你不需要美化pino的日志输出，请修改package.json中scripts的run内容,去掉 `| pino-pretty`)
 - 运行 `npm install`
+- 修改PocketBase库文件
+
+    目标文件 `node_modules/pocketbase/dist/pocketbase.es.mjs`
+
+    在文件的最前方添加 `import EventSource from 'eventsource';`
+
 - 运行 `npm run dev`
 
 ## 要求
 - 安装 maa_cli
-- 修改PocketBase库文件
 
-目标文件 `node_modules/pocketbase/dist/pocketbase.es.mjs` 
-
-在文件的最前方添加 `import EventSource from 'eventsource';`
 
 ## 提示
 - 请不要在单个终端上运行多个Agent 
