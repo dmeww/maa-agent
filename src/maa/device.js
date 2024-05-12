@@ -3,7 +3,7 @@ import {execSync} from 'node:child_process'
 
 export class Device {
 
-    constructor(device = '') {
+    constructor(device) {
         this.device = device
     }
 

@@ -30,13 +30,12 @@ export class Executor {
      */
     pb
 
+    /**
+     * @type {Device}
+     */
+    device
 
     constructor() {
-        if (!env.DEVICE) {
-            console.log('Please config a default adb device')
-            process.exit(0)
-        }
-        this.device = new Device(env.DEVICE)
         this.file = new File()
         this.exec().catch(err => {
             logger.error('onError' + err)
@@ -74,10 +73,12 @@ export class Executor {
         return new Promise(async (resolve) => {
 
             const prepare = () => {
+                this.device = new Device(profile['content']['connection']['device'])
                 logger.info('Running Task: ' + task['name'])
                 this.current = task.id
                 this.device.connect()
                 this.device.openScreen()
+                this.file.saveProfile(profile['name'], profile['content'])
                 this.file.saveTask(task.id, task['content'])
                 this.report(new LogModel(task.id, 'Agent Start Working'))
             }
@@ -91,7 +92,7 @@ export class Executor {
                     .delete(record['id'])
                     .catch(handleError)
             }
-
+            // check if exec exists
             let execModel = await this.pb.collection('exec')
                 .getOne(record['id'])
                 .catch(handleError)
@@ -103,10 +104,21 @@ export class Executor {
             } else {
                 execModel['running'] = true
             }
-
+            // update exec status
             await this.pb.collection('exec')
                 .update(record['id'], execModel)
                 .catch(handleError)
+
+            // load exec's profile
+            let profile = await this.pb.collection('profile')
+                .getOne(record['profileid'])
+                .catch(handleError)
+
+            if (profile === undefined) {
+                logger.info('profile not found, may have been removed, moving next exec')
+                complete('profile not found, may have been removed, moving next exec')
+                return
+            }
 
             let task = await this.pb.collection('task')
                 .getOne(record['taskid'])
@@ -114,12 +126,16 @@ export class Executor {
 
             if (task === undefined) {
                 logger.info('task not found, may have been removed, moving next exec')
+                complete('task not found, may have been removed, moving next exec')
                 return
             }
 
             prepare()
 
-            let run = exec(`maa 2>&1 run ${task.id} -v`)
+            /**
+             * @type {ChildProcess}
+             */
+            let run = exec(`maa 2>&1 run ${task.id} -p ${profile['name']} -v `)
 
             // 日志输出
             run.stdout.on('data', data => {

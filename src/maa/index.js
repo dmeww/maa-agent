@@ -21,10 +21,11 @@ export class Agent {
 
     constructor() {
         this.excutor = new Executor()
-        this.cron = new Cron(async (taskId = '') => {
+        this.cron = new Cron(async (taskId = '', profileId = '') => {
             await this.pb.collection('exec')
                 .create({
                     taskid: taskId,
+                    profileid: profileId,
                     running: false
                 })
         })
@@ -42,7 +43,7 @@ export class Agent {
             .getFullList()
         cronList.forEach(cronRecord => {
             logger.info('Loading Cron : ' + cronRecord.id)
-            this.cron.addCron(cronRecord.id, cronRecord.cron, cronRecord.taskid)
+            this.cron.addCron(cronRecord.id, cronRecord.cron, cronRecord.taskid,cronRecord.profileid)
         })
     }
 
@@ -94,7 +95,7 @@ export class Agent {
                 switch (e.action) {
                     case 'create': {
                         logger.info('Add Cron :=> ' + e.record.id)
-                        this.cron.addCron(e.record.id, e.record.cron, e.record.taskid)
+                        this.cron.addCron(e.record.id, e.record.cron, e.record.taskid,e.record.profileid)
                         break
                     }
                     case 'delete': {
@@ -105,7 +106,7 @@ export class Agent {
                     case 'update': {
                         logger.info('Update Cron :=> ' + e.record.id)
                         this.cron.removeCron(e.record.id)
-                        this.cron.addCron(e.record.id, e.record.cron, e.record.taskid)
+                        this.cron.addCron(e.record.id, e.record.cron, e.record.taskid,e.record.profileid)
                         break
                     }
                 }

@@ -11,7 +11,7 @@ export class Cron {
 
     constructor(commitFunc) {
         /**
-         * @type {function(taskid:string):Promise<void>}
+         * @type {function(taskid:string,profileid:string):Promise<void>}
          */
         this.commitTaskFunc = commitFunc
     }
@@ -22,12 +22,13 @@ export class Cron {
      * @param {string} id
      * @param {string} cronExp
      * @param {string} taskId
+     * @param {string} profileId
      * @return {Promise<void>}
      */
-    async addCron(id, cronExp, taskId) {
+    async addCron(id, cronExp, taskId,profileId) {
         let task = cron.schedule(cronExp, () => {
             logger.info(`on Cron Task ${taskId}`)
-            this.commitTaskFunc(taskId)
+            this.commitTaskFunc(taskId,profileId)
         });
         this.cronTable.set(id, task)
     }

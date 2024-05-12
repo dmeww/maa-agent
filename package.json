@@ -17,5 +17,8 @@
     "pino": "^9.0.0",
     "pocketbase": "^0.21.2",
     "uuid": "^9.0.1"
+  },
+  "devDependencies": {
+    "@types/node": "^20.12.11"
   }
 }
