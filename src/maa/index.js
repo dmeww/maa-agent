@@ -1,12 +1,11 @@
 import {Executor} from "./executor.js";
 import {usePocketBase} from "../db/index.js";
 import pino from 'pino';
-import * as dotenv from "dotenv";
 import {Cron} from "./cron.js";
 
 import PocketBase from "pocketbase";
 
-const env = dotenv.config().parsed;
+
 const logger = pino();
 
 
