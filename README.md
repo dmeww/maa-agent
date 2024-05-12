@@ -10,7 +10,7 @@ MAA 任务执行器
 - 本项目依赖于`PocketBase`作为数据库后端，需配合PocketBase使用
 
 ## 运行
-- 在src目录下创建`.env`文件，设置PocketBase admin认证信息
+- 在src目录下创建`.env`文件，根据`sample.env`设置PocketBase连接信息
 - 运行 `npm install pino-pretty -g` (如果你不需要美化pino的日志输出，请修改package.json中scripts的run内容,去掉 `| pino-pretty`)
 - 运行 `npm install`
 - 修改PocketBase库文件
