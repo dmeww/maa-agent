@@ -5,8 +5,8 @@
   "main": "src/index.js",
   "type": "module",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "node src | pino-pretty"
+    "dev": "node src",
+    "dev-pino": "node src | pino-pretty"
   },
   "author": "DMew",
   "license": "MIT",
