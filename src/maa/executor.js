@@ -5,6 +5,7 @@ import {LogModel} from "../db/types.js";
 import {File} from "./file.js";
 import PocketBase from "pocketbase";
 
+
 const logger = pino();
 
 export class Executor {
@@ -84,7 +85,7 @@ export class Executor {
      */
     do(record) {
         return new Promise(async (resolve) => {
-            logger.info('onTask:Exec:=>'+record)
+            logger.info('onTask:Exec:=>' + record)
             const prepare = () => {
                 // TODO 配置设备对象
                 this.device = new Device(profile['content']['connection']['address'])
