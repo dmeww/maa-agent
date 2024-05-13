@@ -25,7 +25,7 @@ export class Executor {
 
     /**
      *
-     * @type { ;PocketBase}
+     * @type {PocketBase}
      */
     pb
 
@@ -87,7 +87,7 @@ export class Executor {
             logger.info('onTask:Exec:=>'+record)
             const prepare = () => {
                 // TODO 配置设备对象
-                this.device = new Device(profile['content']['connection']['device'])
+                this.device = new Device(profile['content']['connection']['address'])
                 logger.info('Running Task: ' + task['name'])
                 // TODO 切换当前执行任务的ID
                 this.current = task.id
