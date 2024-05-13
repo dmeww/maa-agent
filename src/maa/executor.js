@@ -1,4 +1,3 @@
-import * as dotenv from "dotenv";
 import {Device} from "./device.js";
 import pino from 'pino';
 import {exec, execSync} from 'node:child_process'
@@ -6,7 +5,6 @@ import {LogModel} from "../db/types.js";
 import {File} from "./file.js";
 import PocketBase from "pocketbase";
 
-const env = dotenv.config().parsed;
 const logger = pino();
 
 export class Executor {
@@ -38,8 +36,8 @@ export class Executor {
     constructor() {
         this.file = new File()
         this.exec().catch(err => {
-            logger.error('onError' + err)
-            logger.info('Executor exited')
+            logger.error('出错了' + err)
+            logger.info('任务执行器 退出')
         })
     }
 
@@ -80,7 +78,7 @@ export class Executor {
                 this.device.openScreen()
                 this.file.saveProfile(profile['name'], profile['content'])
                 this.file.saveTask(task.id, task['content'])
-                this.report(new LogModel(task.id, 'Agent Start Working'))
+                this.report(new LogModel(task.id, 'Agent 开始工作'))
             }
 
             const complete = (endStr) => {
@@ -91,19 +89,35 @@ export class Executor {
                 this.pb.collection('exec')
                     .delete(record['id'])
                     .catch(handleError)
+                this.pb.collection('log')
+                    .delete(task.id, {
+                        fields: 'taskid'
+                    })
+                    .catch(handleError)
             }
-            // check if exec exists
+            // TODO 检查exec表
             let execModel = await this.pb.collection('exec')
                 .getOne(record['id'])
                 .catch(handleError)
 
             if (execModel === undefined) {
-                logger.info('ExecModel no found, moving next exec')
-                complete('ExecModel no found, moving next exec')
+                logger.info('没有在数据库找到执行详情(exec)，准备执行下一个任务')
+                complete('没有在数据库找到执行详情(exec)，准备执行下一个任务')
                 return
-            } else {
-                execModel['running'] = true
             }
+            // TODO 获取任务内容
+            let task = await this.pb.collection('task')
+                .getOne(record['taskid'])
+                .catch(handleError)
+
+            if (task === undefined) {
+                logger.info('没有在数据库找到对应的任务(task)，准备执行下一个任务')
+                complete('没有在数据库找到对应的任务(task)，准备执行下一个任务')
+                return
+            }
+            // TODO 告诉UI当前Agent正在执行的任务名
+            execModel['taskname'] = task['name']
+
             // update exec status
             await this.pb.collection('exec')
                 .update(record['id'], execModel)
@@ -115,20 +129,11 @@ export class Executor {
                 .catch(handleError)
 
             if (profile === undefined) {
-                logger.info('profile not found, may have been removed, moving next exec')
-                complete('profile not found, may have been removed, moving next exec')
+                logger.info('没有在数据库找到对应的配置文件(profile)，准备执行下一个任务')
+                complete('没有在数据库找到对应的配置文件(profile)，准备执行下一个任务')
                 return
             }
 
-            let task = await this.pb.collection('task')
-                .getOne(record['taskid'])
-                .catch(handleError)
-
-            if (task === undefined) {
-                logger.info('task not found, may have been removed, moving next exec')
-                complete('task not found, may have been removed, moving next exec')
-                return
-            }
 
             prepare()
 
@@ -139,7 +144,9 @@ export class Executor {
 
             // 日志输出
             run.stdout.on('data', data => {
-                this.report(new LogModel(task.id, data.toString()))
+                let log = data.toString()
+                if (!log.startsWith('[INFO]') && !log.includes('onnxruntime'))
+                    this.report(new LogModel(task.id, log))
             });
             // 正常退出
             run.on('close', code => {
