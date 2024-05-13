@@ -91,9 +91,7 @@ export class Executor {
                 logger.info('Running Task: ' + task['name'])
                 // TODO 切换当前执行任务的ID
                 this.current = task.id
-                // TODO 执行ADB连接目标设备
-                this.device.connect()
-                // TODO 点亮设备屏幕
+                // TODO 让设备能够执行MAA<连接ADB，修改屏幕分辨率>
                 this.device.prepare()
                 // TODO 保存配置文件
                 this.file.saveProfile(profile['name'], profile['content'])

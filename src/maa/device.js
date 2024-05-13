@@ -16,6 +16,7 @@ export class Device {
     }
 
     prepare() {
+        this.connect()
         this.openScreen()
         this.setResolution()
     }
