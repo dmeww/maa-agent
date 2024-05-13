@@ -116,7 +116,7 @@ export class Executor {
                 // TODO 删除已执行任务的日志
                 this.pb.collection('log')
                     .getFullList({
-                        filter: `taskid="${id.value}"`
+                        filter: `execid="${record['id']}"`
                     })
                     .then(list => {
                         list.forEach(log => {
