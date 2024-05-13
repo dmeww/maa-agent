@@ -84,7 +84,7 @@ export class Executor {
      */
     do(record) {
         return new Promise(async (resolve) => {
-
+            logger.info('onTask:Exec:=>'+record)
             const prepare = () => {
                 // TODO 配置设备对象
                 this.device = new Device(profile['content']['connection']['device'])

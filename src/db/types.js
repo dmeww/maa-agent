@@ -1,10 +1,10 @@
 export class LogModel {
 
-    taskid
+    execid
     content
 
-    constructor(taskid, content) {
-        this.taskid = taskid
+    constructor(execid, content) {
+        this.taskid = execid
         this.content = content
     }
 }
