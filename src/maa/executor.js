@@ -98,13 +98,13 @@ export class Executor {
                 // TODO 保存任务文件
                 this.file.saveTask(task.id, task['content'])
                 // TODO TODO 发送日志
-                this.report(new LogModel(execModel.id, 'Agent 开始工作'))
+                this.report(new LogModel(record['id'], 'Agent 开始工作'))
             }
 
             const complete = (endStr) => {
                 this.current = ''
                 // TODO 发送日志
-                this.report(new LogModel(execModel.id, endStr))
+                this.report(new LogModel(record['id'], endStr))
                 // TODO 删除任务文件
                 this.file.removeTask(task.id)
                 // TODO 关闭设备屏幕
@@ -178,7 +178,7 @@ export class Executor {
             run.stdout.on('data', data => {
                 let log = data.toString()
                 if (!log.startsWith('[INFO]') && !log.includes('onnxruntime'))
-                    this.report(new LogModel(execModel.id, log))
+                    this.report(new LogModel(record['id'], log))
             });
             // 正常退出
             run.on('close', code => {
