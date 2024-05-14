@@ -192,7 +192,7 @@ export class Executor {
                 }
                 this.report(new LogModel(record['id'], log))
                 if (log.includes('Summary')) {
-                    summary = ''
+                    summary = log
                 }
             });
             // 正常退出
