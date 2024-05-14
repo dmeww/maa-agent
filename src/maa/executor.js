@@ -177,7 +177,7 @@ export class Executor {
 
             await prepare()
 
-            let summary = ''
+            let summary = 'No Summary'
             /**
              * @type {ChildProcess}
              */
