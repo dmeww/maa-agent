@@ -4,7 +4,7 @@ export class LogModel {
     content
 
     constructor(execid, content) {
-        this.taskid = execid
+        this.execid = execid
         this.content = content
     }
 }
