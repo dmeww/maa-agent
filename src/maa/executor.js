@@ -4,6 +4,7 @@ import {exec, execSync} from 'node:child_process'
 import {LogModel} from "../db/types.js";
 import {File} from "./file.js";
 import PocketBase from "pocketbase";
+import {RecordModel} from 'pocketbase'
 
 
 const logger = pino();
@@ -68,7 +69,7 @@ export class Executor {
 
     /**
      * 向队列中添加任务
-     * @param record
+     * @param {RecordModel} record
      * @return {Promise<void>}
      */
     async pushTask(record) {
@@ -80,12 +81,12 @@ export class Executor {
 
     /**
      * 执行MAA任务
-     * @param  record
+     * @param {RecordModel} record
      * @return {Promise<unknown>}
      */
     do(record) {
         return new Promise(async (resolve) => {
-            logger.info('onTask:Exec:=>' + record)
+            logger.info('onTask:Exec:=>' + JSON.stringify(record))
             const prepare = async () => {
                 // TODO 配置设备对象
                 this.device = new Device(profile['content']['connection']['address'])
@@ -99,20 +100,20 @@ export class Executor {
                 // TODO 保存任务文件
                 this.file.saveTask(task.id, task['content'])
                 // TODO TODO 发送日志
-                this.report(new LogModel(record['id'], 'Agent 开始工作'))
+                this.report(new LogModel(record.id, 'Agent 开始工作'))
             }
 
             const complete = (endStr) => {
                 this.current = ''
                 // TODO 发送日志
-                this.report(new LogModel(record['id'], endStr))
+                this.report(new LogModel(record.id, endStr))
                 // TODO 删除任务文件
                 this.file.removeTask(task.id)
                 // TODO 关闭设备屏幕
                 this.device.complete()
                 // TODO 从队列中删除任务执行详情
                 this.pb.collection('exec')
-                    .delete(record['id'])
+                    .delete(record.id)
                     .catch(handleError)
                 // TODO 任务执行记录
                 this.pb.collection('history')
@@ -124,7 +125,7 @@ export class Executor {
                 // TODO 删除已执行任务的日志
                 this.pb.collection('log')
                     .getFullList({
-                        filter: `execid="${record['id']}"`
+                        filter: `execid="${record.id}"`
                     })
                     .then(list => {
                         list.forEach(log => {
@@ -137,7 +138,7 @@ export class Executor {
             }
             // TODO 获取任务执行详情
             let execModel = await this.pb.collection('exec')
-                .getOne(record['id'])
+                .getOne(record.id)
                 .catch(handleError)
 
             if (execModel === undefined) {
@@ -190,7 +191,7 @@ export class Executor {
                     // 库日志不上报，因为我看不明白
                     return
                 }
-                this.report(new LogModel(record['id'], log))
+                this.report(new LogModel(record.id, log))
                 if (log.includes('Summary')) {
                     summary = log
                 }

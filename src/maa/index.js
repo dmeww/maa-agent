@@ -24,8 +24,7 @@ export class Agent {
             await this.pb.collection('exec')
                 .create({
                     taskid: taskId,
-                    profileid: profileId,
-                    running: false
+                    profileid: profileId
                 })
         })
     }
