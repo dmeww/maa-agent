@@ -6,7 +6,8 @@
   "type": "module",
   "scripts": {
     "dev": "node src",
-    "dev-pino": "node src | pino-pretty"
+    "dev-pino": "node src | pino-pretty",
+    "setup": "sh setup.sh"
   },
   "author": "DMew",
   "license": "MIT",
