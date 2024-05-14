@@ -3,8 +3,7 @@ import pino from 'pino';
 import {exec, execSync} from 'node:child_process'
 import {LogModel} from "../db/types.js";
 import {File} from "./file.js";
-import PocketBase from "pocketbase";
-import {RecordModel} from 'pocketbase'
+// import PocketBase from "pocketbase";
 
 
 const logger = pino();

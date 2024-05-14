@@ -20,4 +20,4 @@ wget https://github.com/dmeww/maa-agent-ui/releases/download/pb_release/pb_publi
 echo "解压前端"
 unzip pb_public.zip -d ./pocketbase
 
-echo "你现在可以在本目录使用 pm2 start pm2/pocketbase.js 来启动PocketBase了"
+echo "你现在可以在本目录使用 pm2 来启动PocketBase了"
