@@ -86,7 +86,7 @@ export class Executor {
     do(record) {
         return new Promise(async (resolve) => {
             logger.info('onTask:Exec:=>' + record)
-            const prepare = () => {
+            const prepare = async () => {
                 // TODO 配置设备对象
                 this.device = new Device(profile['content']['connection']['address'])
                 logger.info('Running Task: ' + task['name'])
@@ -113,6 +113,13 @@ export class Executor {
                 // TODO 从队列中删除任务执行详情
                 this.pb.collection('exec')
                     .delete(record['id'])
+                    .catch(handleError)
+                // TODO 任务执行记录
+                this.pb.collection('history')
+                    .create({
+                        taskname: task['name'],
+                        summary: summary
+                    })
                     .catch(handleError)
                 // TODO 删除已执行任务的日志
                 this.pb.collection('log')
@@ -168,9 +175,9 @@ export class Executor {
             }
 
 
-            prepare()
+            await prepare()
 
-
+            let summary = ''
             /**
              * @type {ChildProcess}
              */
@@ -179,8 +186,14 @@ export class Executor {
             // 日志输出
             run.stdout.on('data', data => {
                 let log = data.toString()
-                if (!log.startsWith('[INFO]') && !log.includes('onnxruntime'))
-                    this.report(new LogModel(record['id'], log))
+                if (log.startsWith('[INFO]') || log.includes('onnxruntime')) {
+                    // 库日志不上报，因为我看不明白
+                    return
+                }
+                this.report(new LogModel(record['id'], log))
+                if (log.includes('Summary')) {
+                    summary = ''
+                }
             });
             // 正常退出
             run.on('close', code => {
@@ -218,6 +231,11 @@ export class Executor {
             .create(log)
             .catch(handleError)
     }
+
+    async summary(name = '', summary = '') {
+
+    }
+
 
 }
 
