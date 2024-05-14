@@ -29,7 +29,7 @@ export class Device {
     setResolution() {
         let res = Resolution[env.DEVICE_RESOLUTION]
         if (!res) {
-            logger.info('Resolution NOT FOUND, Default to 1920x1080')
+            logger.info('Resolution NOT FOUND, Default to 720P')
             res = Resolution["720"]
         }
         execSync(`adb -s ${this.device} shell wm size ${res.width}x${res.height}`)

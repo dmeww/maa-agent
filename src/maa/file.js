@@ -1,5 +1,6 @@
 import * as fs from "node:fs";
 import pino from "pino";
+import * as http from "node:http";
 
 
 const logger = pino();
@@ -12,6 +13,10 @@ export class File {
     TasksPath = `${this.BasePath}/tasks`
 
     ProfilesPath = `${this.BasePath}/profiles`
+
+    CopilotURL = 'https://prts.plus'
+
+    CopilotPath = '/root/.cache/maa/copilot'
 
     constructor() {
         this.init()
@@ -30,6 +35,10 @@ export class File {
             if (!fs.existsSync(this.ProfilesPath)) {
                 logger.info(`MAA profiles base path ${this.ProfilesPath} not exists, creating`)
                 fs.mkdirSync(this.ProfilesPath)
+            }
+            if (!fs.existsSync(this.CopilotPath)) {
+                logger.info(`MAA profiles base path ${this.CopilotPath} not exists, creating`)
+                fs.mkdirSync(this.CopilotPath)
             }
         } catch (err) {
             logger.error('init maa dir error, exit')
