@@ -17,6 +17,7 @@ DEVICE_RESOLUTION : 执行MAA前会设置设备分辨率,支持1080|720,默认�
 ```
 
 ## 运行 - PocketBase
+- 运行get-pocketbase.sh (arm64)
 - 下载PocketBase二进制文件 [PocketBase Github Repo](https://github.com/pocketbase/pocketbase)
 - 运行PocketBase， 设置好用户名密码后，点击Settings -> Import collections -> Load from JSON file 选择本项目下的`pb_schema.json`进行导入
 
