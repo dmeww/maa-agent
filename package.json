@@ -5,8 +5,7 @@
   "main": "src/index.js",
   "type": "module",
   "scripts": {
-    "dev": "node src",
-    "dev-pino": "node src | pino-pretty",
+    "dev": "node src | pino-pretty",
     "setup": "sh setup.sh"
   },
   "author": "DMew",

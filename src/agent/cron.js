@@ -27,7 +27,7 @@ export class Cron {
      */
     async addCron(id, cronExp, taskId,profileId) {
         let task = cron.schedule(cronExp, () => {
-            logger.info(`on Cron Task ${taskId}`)
+            logger.info(`Cron Task ${taskId} Emits`)
             this.commitTaskFunc(taskId,profileId)
         });
         this.cronTable.set(id, task)

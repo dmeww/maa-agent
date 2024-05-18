@@ -2,13 +2,13 @@ import {Executor} from "./executor.js";
 import {usePocketBase} from "../db/index.js";
 import pino from 'pino';
 import {Cron} from "./cron.js";
-import PocketBase from "pocketbase";
+// import PocketBase from "pocketbase";
 
 
 const logger = pino();
 
 
-export class Agent {
+class Agent {
 
 
     /**
@@ -40,14 +40,14 @@ export class Agent {
         let cronList = await this.pb.collection('cron')
             .getFullList()
         cronList.forEach(cronRecord => {
-            logger.info('Loading Cron : ' + cronRecord.id)
+            logger.info('Loading CRON : ' + cronRecord.id)
             this.cron.addCron(cronRecord.id, cronRecord.cron, cronRecord.taskid,cronRecord.profileid)
         })
     }
 
 
     run() {
-        logger.info('Agent is already running')
+        logger.info('Agent Running Successfully')
         // TODO 监听 exec 表， 作为任务执行队列
         this.pb.collection('exec')
             .subscribe("*", e => {
@@ -117,3 +117,4 @@ export class Agent {
 
 
 
+export default Agent

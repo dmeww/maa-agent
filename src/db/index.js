@@ -17,6 +17,10 @@ export const initPocketBase = async () => {
     }
     pb = new PocketBase(env.POCKETBASE_URL)
     pb.autoCancellation(false)
+    // 过期自动重登录
+    pb.authStore.onChange(async () => {
+        await pb.admins.authRefresh()
+    }, true)
     await pb.admins.authWithPassword(env.POCKETBASE_USER, env.POCKETBASE_PASS)
 }
 

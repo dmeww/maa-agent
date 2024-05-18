@@ -1,4 +1,4 @@
-import {Agent} from "./maa/index.js";
+import Agent from "./agent/index.js";
 
 
 const agent = await new Agent().init()

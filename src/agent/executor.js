@@ -116,12 +116,7 @@ export class Executor {
                 .delete(record.id)
                 .catch(handleError)
             // TODO 任务执行记录
-            await this.pb.collection('history')
-                .create({
-                    taskname: task['name'],
-                    summary: summary
-                })
-                .catch(handleError)
+            await this.summary(task['name'], summary)
             // TODO 删除已执行任务的日志
             await this.pb.collection('log')
                 .getFullList({
@@ -178,7 +173,7 @@ export class Executor {
 
         await prepare()
 
-        let summary = 'No Summary'
+        let summary = []
         /**
          * 输出合并到标准输出流中
          * @type {ChildProcess}
@@ -193,8 +188,8 @@ export class Executor {
                 return
             }
             this.report(record.id, log)
-            if (log.includes('Summary')) {
-                summary = log
+            if (summary.length > 0 || log.includes('Summary')) {
+                summary.push(log)
             }
         });
         // 正常退出
@@ -238,8 +233,19 @@ export class Executor {
             .catch(handleError)
     }
 
-    async summary(name = '', summary = '') {
-
+    /**
+     *
+     * @param name
+     * @param {string[]} summary
+     * @return {Promise<void>}
+     */
+    async summary(name = '', summary = []) {
+        await this.pb.collection('history')
+            .create({
+                taskname: name,
+                summary: summary.join('')
+            })
+            .catch(handleError)
     }
 
 

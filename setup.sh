@@ -8,6 +8,6 @@ echo "import EventSource from 'eventsource';" | cat - node_modules/pocketbase/di
 
 cp sample.env .env
 
-echo "修改 .env 文件后，使用 npm run dev-pino 或 npm run dev 来启动项目"
+echo "配置 .env 文件后，使用 npm run dev 来启动项目"
 
 echo "或者你可以在本目录使用 pm2 来启动Agent"

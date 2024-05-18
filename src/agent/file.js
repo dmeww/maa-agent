@@ -2,7 +2,6 @@ import * as fs from "node:fs";
 import pino from "pino";
 
 
-
 const logger = pino();
 
 
@@ -21,19 +20,19 @@ export class File {
     init() {
         try {
             if (!fs.existsSync(this.BasePath)) {
-                logger.info(`MAA 配置路径 ${this.BasePath} 不存在, 正在创建`)
+                logger.info(`MAA Path ${this.BasePath} 不存在, 正在创建`)
                 fs.mkdirSync(this.BasePath)
             }
             if (!fs.existsSync(this.TasksPath)) {
-                logger.info(`MAA 任务(tasks)路径 ${this.TasksPath} 不存在, 正在创建`)
+                logger.info(`MAA TaskPath ${this.TasksPath} 不存在, 正在创建`)
                 fs.mkdirSync(this.TasksPath)
             }
             if (!fs.existsSync(this.ProfilesPath)) {
-                logger.info(`MAA 相关配置(profiles)路径 ${this.ProfilesPath} 不存在, 正在创建`)
+                logger.info(`MAA ProfilePath ${this.ProfilesPath} 不存在, 正在创建`)
                 fs.mkdirSync(this.ProfilesPath)
             }
         } catch (err) {
-            logger.error('初始化MAA目录失败，Agent退出')
+            logger.error('Agent exited cause MAA-Path create failed \n' + err)
             process.exit(0)
         }
     }
