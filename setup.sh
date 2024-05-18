@@ -1,4 +1,4 @@
-#!/usr/bin/sh
+#!/usr/bin/env sh
 
 npm install -g pino-pretty
 
@@ -10,4 +10,4 @@ cp sample.env .env
 
 echo "配置 .env 文件后，使用 npm run dev 来启动项目"
 
-echo "或者你可以在本目录使用 pm2 来启动Agent"
+echo "或者你使用 pm2 start ./ecosystem.config.js 来启动Agent"

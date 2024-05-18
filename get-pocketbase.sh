@@ -1,23 +1,37 @@
-#!/usr/bin/sh
-
-echo "正在下载PocketBase"
+#!/usr/bin/env sh
+echo "Downloading PocketBase"
 
 wget https://github.com/pocketbase/pocketbase/releases/download/v0.22.12/pocketbase_0.22.12_linux_arm64.zip
 
 mkdir pocketbase
-echo "解压PocketBase"
-unzip pocketbase_0.22.12_linux_arm64.zip -d ./pocketbase
+echo "Unzip PocketBase"
+unzip pocketbase_0.22.12_linux_arm64.zip
 
-echo "安装PocketBase"
-chmod +x ./pocketbase/pocketbase
-mv ./pocketbase/pocketbase /usr/local/bin
+echo "Install PocketBase to /usr/local/bin"
+chmod +x ./pocketbase
+mv ./pocketbase /usr/local/bin
 
-rm ./pocketbase/LICENSE.md
-rm ./pocketbase/CHANGELOG.md
+echo "Remove unused files"
+rm ./LICENSE.md
+rm ./CHANGELOG.md
+rm ./pocketbase_0.22.12_linux_arm64.zip
 
-echo "正在下载Agent前端"
+echo "Making Dictionary 'Agent'"
+
+mkdir pocketbase
+
+echo "Downloading Agent UI"
 wget https://github.com/dmeww/maa-agent-ui/releases/download/pb_release/pb_public.zip
-echo "解压前端"
+echo "Unzip Agent UI to ./pocketbase"
 unzip pb_public.zip -d ./pocketbase
 
-echo "你现在可以在本目录使用 pm2 来启动PocketBase了"
+cat <<EOF > ecosystem.config.js
+module.exports = {
+  apps : [{
+    script: 'pocketbase serve --http 0.0.0.0:8090 --dir ./pb_data --publicDir ./pb_public',
+    name: 'pocketbase'
+  }]
+};
+EOF
+
+echo "你现在可以使用 pm2 start ./pocketbase/ecosystem.config.js 来启动PocketBase(with AgentUI)了"
