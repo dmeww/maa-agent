@@ -26,7 +26,7 @@ DEVICE_RESOLUTION : 执行MAA前会设置设备分辨率,支持1080|720,默认�
 
 - 配置方案A: 使用配置基本=> 运行 `npm run setup` 后，修改`.env`文件内容即可通过 `npm run dev-pino` 或 `npm run dev`启动Agent
 - 配置方案B: 自己配置=>
-  - 在src目录下创建`.env`文件，根据`sample.env`设置PocketBase连接信息
+  - 在src目录下创建`.env`文件，根据`example.env`设置PocketBase连接信息
   - 运行 `npm install pino-pretty -g` 
   - 运行 `npm install`
   - 修改PocketBase库文件(PocketBase JS SDK 默认是用于浏览器，控制台环境需要修改)

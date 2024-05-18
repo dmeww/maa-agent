@@ -22,15 +22,14 @@ wget -q --show-progress https://github.com/dmeww/maa-agent-ui/releases/download/
 echo "Unzip Agent UI to ./pocketbase"
 unzip pb_public.zip -d ./pocketbase
 
-cat <<EOF > ./pocketbase/start.sh
+cat << 'EOF' > ./pocketbase/start.sh
 #!/usr/bin/bash
 PB="$0"
-if expr "PB" : '.*/' > /dev/null; then
-  PB="${PB%/*}"
-else
-  PB="./"
-fi
-
+case "$0" in
+  */*) PB="${0%/*}";;
+  *) PB="./";;
+esac
+echo "$0 ${PB}"
 pocketbase serve --http 0.0.0.0:8090 --dir "${PB}/pb_data" --publicDir "${PB}/pb_public"
 EOF
 
