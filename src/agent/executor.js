@@ -2,8 +2,8 @@ import {Device} from "./device.js";
 import pino from 'pino';
 import {exec, execSync} from 'node:child_process'
 import {File} from "./file.js";
-// import PocketBase from "pocketbase";
-// import {RecordModel} from "pocketbase";
+import PocketBase from "pocketbase";
+import {RecordModel} from "pocketbase";
 
 const logger = pino();
 
@@ -12,7 +12,7 @@ export class Executor {
 
     /**
      *  任务队列，异步插入，同步执行
-     * @type {Function[]}
+     * @type {(()=>Promise<any>)[]}
      */
     queue = []
 
@@ -37,8 +37,8 @@ export class Executor {
     constructor() {
         this.file = new File()
         this.exec().catch(err => {
-            logger.error('出错了' + err)
-            logger.info('任务执行器 退出')
+            logger.error('Error:=>' + err)
+            logger.info('Agent On Unhandled error, exiting...')
         })
     }
 
@@ -68,9 +68,9 @@ export class Executor {
     /**
      * 向队列中添加任务
      * @param {RecordModel} record
-     * @return {Promise<void>}
+     * @return {void}
      */
-    async pushTask(record) {
+    pushTask(record) {
         this.queue.push(async () => {
             await this.do(record)
             await this.exec()
@@ -82,136 +82,138 @@ export class Executor {
      * @param {RecordModel} record
      * @return {Promise<unknown>}
      */
-    async do(record) {
+    do(record) {
+        return new Promise(async (resolve) => {
+            logger.info(`onTask-Executing:=> ${record.id}`)
+            const prepare = async () => {
+                // TODO 切换连接设备
+                this.device = new Device(profile['content']['connection']['address'])
+                logger.info(`Running Task: ${task['name']}`)
+                // TODO 切换当前执行任务的ID
+                this.current = task.id
+                // TODO 让设备执行MAA<连接ADB，修改屏幕分辨率>
+                await this.device.prepare().catch((e) => complete(String(e)))
+                // TODO 保存配置文件
+                this.file.saveProfile(profile['name'], profile['content'])
+                // TODO 保存任务文件
+                this.file.saveTask(task.id, task['content'])
+                // TODO TODO 发送日志
+                await this.report(record.id, 'Agent 开始工作')
+            }
 
-        logger.info(`onTask-Executing:=> ${record.id}`)
-        const prepare = async () => {
-            // TODO 切换连接设备
-            this.device = new Device(profile['content']['connection']['address'])
-            logger.info(`Running Task: ${task['name']}`)
-            // TODO 切换当前执行任务的ID
-            this.current = task.id
-            // TODO 让设备执行MAA<连接ADB，修改屏幕分辨率>
-            await this.device.prepare().catch((e) => complete(String(e)))
-            // TODO 保存配置文件
-            this.file.saveProfile(profile['name'], profile['content'])
-            // TODO 保存任务文件
-            this.file.saveTask(task.id, task['content'])
-            // TODO TODO 发送日志
-            await this.report(record.id, 'Agent 开始工作')
-        }
-
-        const complete = async (endStr) => {
-            this.current = ''
-            // TODO 发送日志
-            await this.report(record.id, endStr)
-            // TODO 删除任务文件
-            this.file.removeTask(task.id)
-            // TODO 关闭设备屏幕
-            await this.device.complete()
-            // TODO 等待3秒
-            await delay(3000)
-            // TODO 从队列中删除任务执行详情
-            await this.pb.collection('exec')
-                .delete(record.id)
-                .catch(handleError)
-            // TODO 任务执行记录
-            await this.summary(task['name'], summary)
-            // TODO 删除已执行任务的日志
-            await this.pb.collection('log')
-                .getFullList({
-                    filter: `execid="${record.id}"`
-                })
-                .then(list => {
-                    list.forEach(log => {
-                        this.pb.collection('log')
-                            .delete(log.id)
-                            .catch(handleError)
+            const complete = async (endStr) => {
+                this.current = ''
+                // TODO 发送日志
+                await this.report(record.id, endStr)
+                // TODO 删除任务文件
+                this.file.removeTask(task.id)
+                // TODO 关闭设备屏幕
+                await this.device.complete()
+                // TODO 等待3秒
+                await delay(3000)
+                // TODO 从队列中删除任务执行详情
+                await this.pb.collection('exec')
+                    .delete(record.id)
+                    .catch(handleError)
+                // TODO 任务执行记录
+                await this.summary(task['name'], summary)
+                // TODO 删除已执行任务的日志
+                await this.pb.collection('log')
+                    .getFullList({
+                        filter: `execid="${record.id}"`
                     })
-                })
+                    .then(list => {
+                        list.forEach(log => {
+                            this.pb.collection('log')
+                                .delete(log.id)
+                                .catch(handleError)
+                        })
+                    })
+                    .catch(handleError)
+                resolve()
+            }
+
+            // TODO 获取任务执行详情
+            let execModel = await this.pb.collection('exec')
+                .getOne(record.id)
                 .catch(handleError)
-        }
-        // TODO 获取任务执行详情
-        let execModel = await this.pb.collection('exec')
-            .getOne(record.id)
-            .catch(handleError)
 
-        if (execModel === undefined) {
-            logger.info('没有在数据库找到执行详情(exec)，准备执行下一个任务')
-            await complete('没有在数据库找到执行详情(exec)，准备执行下一个任务')
-            return
-        }
-        // TODO 获取任务内容
-        let task = await this.pb.collection('task')
-            .getOne(record['taskid'])
-            .catch(handleError)
-
-        if (task === undefined) {
-            logger.info('没有在数据库找到对应的任务(task)，准备执行下一个任务')
-            await complete('没有在数据库找到对应的任务(task)，准备执行下一个任务')
-            return
-        }
-        // TODO 告诉UI当前Agent正在执行的任务名
-        execModel['taskname'] = task['name']
-
-        // TODO 更新exec的执行任务名
-        await this.pb.collection('exec')
-            .update(record['id'], execModel)
-            .catch(handleError)
-
-        // TODO 加载MAA配置文件
-        let profile = await this.pb.collection('profile')
-            .getOne(record['profileid'])
-            .catch(handleError)
-
-        if (profile === undefined) {
-            logger.info('没有在数据库找到对应的配置文件(profile)，准备执行下一个任务')
-            await complete('没有在数据库找到对应的配置文件(profile)，准备执行下一个任务')
-            return
-        }
-
-
-        await prepare()
-
-        let summary = []
-        /**
-         * 输出合并到标准输出流中
-         * @type {ChildProcess}
-         */
-        let run = exec(`maa 2>&1 run ${task.id} -p ${profile['name']} -v `)
-
-        // 日志输出
-        run.stdout.on('data', data => {
-            let log = data.toString()
-            if (log.startsWith('[INFO]') || log.includes('onnxruntime')) {
-                // 库日志不上报，因为我看不明白
+            if (execModel === undefined) {
+                logger.info('没有在数据库找到执行详情(exec)，准备执行下一个任务')
+                await complete('没有在数据库找到执行详情(exec)，准备执行下一个任务')
                 return
             }
-            this.report(record.id, log)
-            if (summary.length > 0 || log.includes('Summary')) {
-                summary.push(log)
+            // TODO 获取任务内容
+            let task = await this.pb.collection('task')
+                .getOne(record['taskid'])
+                .catch(handleError)
+
+            if (task === undefined) {
+                logger.info('没有在数据库找到对应的任务(task)，准备执行下一个任务')
+                await complete('没有在数据库找到对应的任务(task)，准备执行下一个任务')
+                return
             }
-        });
-        // 正常退出
-        run.on('close', async (code) => {
-            await complete(`MAA 运行结束 代码:=>${code}`)
-            resolve()
-        });
-        // 异常推出
-        run.on('error', async (error) => {
-            await complete(`MAA 运行异常 :=>${error}`)
-            resolve()
-        });
+            // TODO 告诉UI当前Agent正在执行的任务名
+            execModel['taskname'] = task['name']
+
+            // TODO 更新exec的执行任务名
+            await this.pb.collection('exec')
+                .update(record['id'], execModel)
+                .catch(handleError)
+
+            // TODO 加载MAA配置文件
+            let profile = await this.pb.collection('profile')
+                .getOne(record['profileid'])
+                .catch(handleError)
+
+            if (profile === undefined) {
+                logger.info('没有在数据库找到对应的配置文件(profile)，准备执行下一个任务')
+                await complete('没有在数据库找到对应的配置文件(profile)，准备执行下一个任务')
+                return
+            }
 
 
+            await prepare()
+
+            let summary = []
+            /**
+             * 输出合并到标准输出流中
+             * @type {ChildProcess}
+             */
+            let run = exec(`maa 2>&1 run ${task.id} -p ${profile['name']} -v `)
+
+            // 日志输出
+            run.stdout.on('data', data => {
+                let log = data.toString()
+                if (log.startsWith('[INFO]') || log.includes('onnxruntime')) {
+                    // 库日志不上报，因为我看不明白
+                    return
+                }
+                this.report(record.id, log)
+                if (summary.length > 0 || log.includes('Summary')) {
+                    summary.push(log)
+                }
+            });
+            // 正常退出
+            run.on('close', async (code) => {
+                await complete(`MAA 运行结束 代码:=>${code}`)
+                resolve()
+            });
+            // 异常推出
+            run.on('error', async (error) => {
+                await complete(`MAA 运行异常 :=>${error}`)
+                resolve()
+            });
+
+        })
     }
 
     /**
      * 当删除的任务执行详情的任务id是当前正在执行的任务id时，停止任务
      * @param taskid
-     * @return {Promise<void>}
+     * @return {void}
      */
-    async stop(taskid = '') {
+    stop(taskid = '') {
         if (taskid === this.current) {
             // TODO 停止正在运行的 MAA 进程
             execSync('pkill maa')
