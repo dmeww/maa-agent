@@ -2,9 +2,12 @@ import {Device} from "./device.js";
 import pino from 'pino';
 import {exec, execSync} from 'node:child_process'
 import {File} from "./file.js";
+import * as dotenv from "dotenv";
 import PocketBase from "pocketbase";
 import {RecordModel} from "pocketbase";
 
+
+const env = dotenv.config().parsed;
 const logger = pino();
 
 export class Executor {
@@ -118,18 +121,19 @@ export class Executor {
                 // TODO 任务执行记录
                 await this.summary(task['name'], summary)
                 // TODO 删除已执行任务的日志
-                await this.pb.collection('log')
-                    .getFullList({
-                        filter: `execid="${record.id}"`
-                    })
-                    .then(list => {
-                        list.forEach(log => {
-                            this.pb.collection('log')
-                                .delete(log.id)
-                                .catch(handleError)
+                if (Number(env.AGENT_DEV) !== 1)
+                    await this.pb.collection('log')
+                        .getFullList({
+                            filter: `execid="${record.id}"`
                         })
-                    })
-                    .catch(handleError)
+                        .then(list => {
+                            list.forEach(log => {
+                                this.pb.collection('log')
+                                    .delete(log.id)
+                                    .catch(handleError)
+                            })
+                        })
+                        .catch(handleError)
                 resolve()
             }
 

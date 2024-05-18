@@ -14,6 +14,7 @@ POCKETBASE_URL    : 部署PocketBase的IP+PORT,注意这个需要以http/https�
 POCKETBASE_USER   : PocketBase管理员用户名
 POCKETBASE_PASS   : PocketBase管理员密码
 DEVICE_RESOLUTION : 执行MAA前会设置设备分辨率,支持1080|720,默认是720
+AGENT_DEV=0       : 开发模式,这个模式下任务执行结束后不会清空该次执行的日志
 ```
 
 ## 运行 - PocketBase
