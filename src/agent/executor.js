@@ -120,8 +120,9 @@ export class Executor {
                     .catch(handleError)
                 // TODO 任务执行记录
                 await this.summary(task['name'], summary)
-                // TODO 删除已执行任务的日志
+                // 开发模式下不删日志
                 if (Number(env.AGENT_DEV) !== 1)
+                    // TODO 删除已执行任务的日志
                     await this.pb.collection('log')
                         .getFullList({
                             filter: `execid="${record.id}"`
