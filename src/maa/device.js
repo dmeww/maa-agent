@@ -11,19 +11,37 @@ export class Device {
         this.device = device
     }
 
-    connect() {
-        execSync(`adb connect ${this.device}`)
-    }
-
     prepare() {
-        this.connect()
-        this.openScreen()
-        this.setResolution()
+        return new Promise((resolve, reject) => {
+            try {
+                this.connect()
+                this.openScreen()
+                this.setResolution()
+                resolve(true)
+            } catch (e) {
+                reject(e)
+            }
+        })
     }
 
     complete() {
-        this.resetResolution()
-        this.closeScreen()
+        return new Promise((resolve, reject) => {
+            try {
+                this.resetResolution()
+                this.closeScreen()
+                resolve()
+            } catch (e) {
+                reject(e)
+            }
+        })
+    }
+
+    connect() {
+        try {
+            execSync(`adb connect ${this.device}`)
+        } catch (e) {
+            logger.info('onError' + String(e))
+        }
     }
 
     setResolution() {
@@ -32,11 +50,21 @@ export class Device {
             logger.info('Resolution NOT FOUND, Default to 720P')
             res = Resolution["720"]
         }
-        execSync(`adb -s ${this.device} shell wm size ${res.width}x${res.height}`)
+        try {
+            execSync(`adb -s ${this.device} shell wm size ${res.width}x${res.height}`)
+        } catch (e) {
+            logger.info('onError' + String(e))
+            throw e
+        }
     }
 
     resetResolution() {
-        execSync(`adb -s ${this.device} shell wm reset`)
+        try {
+            execSync(`adb -s ${this.device} shell wm reset`)
+        } catch (e) {
+            logger.info('onError' + String(e))
+            throw e
+        }
     }
 
     /**
@@ -49,19 +77,29 @@ export class Device {
             let on = out.toString().trim().split('=')[1]
             return on === 'true'
         } catch (e) {
-            console.log('onError', e)
-            return false
+            logger.info('onError' + String(e))
+            throw e
         }
     }
 
     openScreen() {
         if (this.isScreenOn()) return
-        execSync(`adb -s ${this.device} shell input keyevent 26`)
+        try {
+            execSync(`adb -s ${this.device} shell input keyevent 26`)
+        } catch (e) {
+            logger.info('onError' + String(e))
+            throw e
+        }
     }
 
     closeScreen() {
         if (!this.isScreenOn()) return
-        execSync(`adb -s ${this.device} shell input keyevent 26`)
+        try {
+            execSync(`adb -s ${this.device} shell input keyevent 26`)
+        } catch (e) {
+            logger.info('onError' + String(e))
+            throw e
+        }
     }
 
 

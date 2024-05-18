@@ -14,10 +14,6 @@ export class File {
 
     ProfilesPath = `${this.BasePath}/profiles`
 
-    CopilotURL = 'https://prts.plus'
-
-    CopilotPath = '/root/.cache/maa/copilot'
-
     constructor() {
         this.init()
     }
@@ -25,23 +21,19 @@ export class File {
     init() {
         try {
             if (!fs.existsSync(this.BasePath)) {
-                logger.info(`MAA base path ${this.BasePath} not exists, creating`)
+                logger.info(`MAA 配置路径 ${this.BasePath} 不存在, 正在创建`)
                 fs.mkdirSync(this.BasePath)
             }
             if (!fs.existsSync(this.TasksPath)) {
-                logger.info(`MAA tasks path ${this.TasksPath} not exists, creating`)
+                logger.info(`MAA 任务(tasks)路径 ${this.TasksPath} 不存在, 正在创建`)
                 fs.mkdirSync(this.TasksPath)
             }
             if (!fs.existsSync(this.ProfilesPath)) {
-                logger.info(`MAA profiles base path ${this.ProfilesPath} not exists, creating`)
+                logger.info(`MAA 相关配置(profiles)路径 ${this.ProfilesPath} 不存在, 正在创建`)
                 fs.mkdirSync(this.ProfilesPath)
             }
-            if (!fs.existsSync(this.CopilotPath)) {
-                logger.info(`MAA profiles base path ${this.CopilotPath} not exists, creating`)
-                fs.mkdirSync(this.CopilotPath)
-            }
         } catch (err) {
-            logger.error('init maa dir error, exit')
+            logger.error('初始化MAA目录失败，Agent退出')
             process.exit(0)
         }
     }
