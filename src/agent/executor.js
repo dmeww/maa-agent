@@ -3,8 +3,8 @@ import pino from 'pino';
 import {exec, execSync} from 'node:child_process'
 import {File} from "./file.js";
 import * as dotenv from "dotenv";
-import PocketBase from "pocketbase";
-import {RecordModel} from "pocketbase";
+// import PocketBase from "pocketbase";
+// import {RecordModel} from "pocketbase";
 
 
 const env = dotenv.config().parsed;
