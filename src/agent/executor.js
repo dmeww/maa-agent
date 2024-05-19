@@ -101,7 +101,7 @@ export class Executor {
                 // TODO 保存任务文件
                 this.file.saveTask(task.id, task['content'])
                 // TODO TODO 发送日志
-                await this.report(record.id, 'Agent 开始工作')
+                await this.report(record.id, 'Agent Start Working\n')
             }
 
             const complete = async (endStr) => {
