@@ -1,0 +1,19 @@
+{
+  "name": "maa-agent-bun",
+  "module": "src/index.ts",
+  "type": "module",
+  "scripts": {
+    "dev": "bun src/index.ts"
+  },
+  "devDependencies": {
+    "@types/bun": "latest",
+    "@types/node-cron": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5.0.0"
+  },
+  "dependencies": {
+    "node-cron": "^3.0.3",
+    "pocketbase": "^0.21.3"
+  }
+}
