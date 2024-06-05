@@ -3,7 +3,8 @@
   "module": "src/index.ts",
   "type": "module",
   "scripts": {
-    "dev": "bun src/index.ts"
+    "dev": "bun src/index.ts",
+    "build-agent": "bun build src/index.ts --compile --outfile agent"
   },
   "devDependencies": {
     "@types/bun": "latest",

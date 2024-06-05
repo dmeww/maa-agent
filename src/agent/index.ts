@@ -2,6 +2,7 @@ import { Executor } from "./executor.ts";
 import { usePocketBase } from "../pocketbase/index.ts";
 import { Cron } from "./cron.ts";
 import PocketBase, { type RecordModel } from "pocketbase";
+import HeartBeat from "./heartbeat.ts";
 
 
 class Agent {
@@ -91,7 +92,10 @@ class Agent {
                     }
                 }
             })
-
+        // TODO 启动任务执行器
+        this.excutor.run()
+        // TODO 发送心跳，让用户知道Agent是否存活
+        new HeartBeat(this.pb).run()
     }
 
 

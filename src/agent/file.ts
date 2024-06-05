@@ -18,7 +18,7 @@ export class File {
     ProfilesPath = `${this.BasePath}/profiles`
 
     constructor() {
-        this.init()
+        // this.init()
     }
 
     init() {
