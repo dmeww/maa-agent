@@ -4,6 +4,7 @@
   "type": "module",
   "scripts": {
     "dev": "bun src/index.ts",
+    "setup": "sh ./setup.sh",
     "build-agent": "bun build src/index.ts --compile --outfile agent"
   },
   "devDependencies": {
