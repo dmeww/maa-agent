@@ -3,12 +3,13 @@ export interface Res {
     width: string
 }
 
-export const Resolution = new Map<string, Res>(
-    [['1080', {
+
+export const Resolution = new Map<number, Res>(
+    [[1080, {
         height: '1920',
         width: '1080'
     }],
-    ['720', {
+    [720, {
         height: '1280',
         width: '720'
     }]]

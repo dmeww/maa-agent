@@ -58,10 +58,10 @@ export class Device {
      * 设置设备分辨率
      */
     setResolution() {
-        let res = Resolution.get(process.env['DEVICE_RESOLUTION'] as any) as Res
+        let res = Resolution.get(Number(process.env['DEVICE_RESOLUTION'])) as Res
         if (!res) {
             console.log('Resolution NOT FOUND, Default to 720P')
-            res = Resolution.get('720')!
+            res = Resolution.get(720)!
         }
         try {
             execSync(`adb -s ${this.device} shell wm size ${res!.width}x${res!.height}`)
