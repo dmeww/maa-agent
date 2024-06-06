@@ -203,6 +203,35 @@
     "options": {}
   },
   {
+    "id": "74mapmawvt60ep3",
+    "name": "heartbeat",
+    "type": "base",
+    "system": false,
+    "schema": [
+      {
+        "system": false,
+        "id": "yhgwloab",
+        "name": "agent",
+        "type": "text",
+        "required": false,
+        "presentable": false,
+        "unique": false,
+        "options": {
+          "min": null,
+          "max": null,
+          "pattern": ""
+        }
+      }
+    ],
+    "indexes": [],
+    "listRule": null,
+    "viewRule": null,
+    "createRule": null,
+    "updateRule": null,
+    "deleteRule": null,
+    "options": {}
+  },
+  {
     "id": "g4zeg13ew9ap4eo",
     "name": "history",
     "type": "base",
